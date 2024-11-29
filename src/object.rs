@@ -284,18 +284,6 @@ impl Object {
         }
     }
 
-    // TODO: maybe remove
-    pub fn type_name(&self) -> Result<&[u8]> {
-        match self {
-            Object::Dictionary(dict) => dict.get_type(),
-            Object::Stream(stream) => stream.dict.get_type(),
-            obj => Err(Error::ObjectType {
-                expected: "Dictionary or Stream",
-                found: obj.enum_variant(),
-            }),
-        }
-    }
-
     pub fn enum_variant(&self) -> &'static str {
         match self {
             Object::Null => "Null",
@@ -391,9 +379,7 @@ impl Dictionary {
     }
 
     pub fn get_type(&self) -> Result<&[u8]> {
-        self.get(b"Type")
-            .and_then(Object::as_name)
-            .or_else(|_| self.get(b"Linearized").and(Ok(b"Linearized")))
+        self.get(b"Type").and_then(Object::as_name)
     }
 
     pub fn iter(&self) -> indexmap::map::Iter<Vec<u8>, Object> {

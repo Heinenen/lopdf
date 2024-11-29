@@ -285,7 +285,7 @@ impl Document {
             }
 
             // If a Metadata stream but metadata isn't encrypted, leave it alone
-            if obj.type_name().ok() == Some(b"Metadata") && !metadata_is_encrypted {
+            if obj.as_dict().and_then(Dictionary::get_type).ok() == Some(b"Metadata") && !metadata_is_encrypted {
                 continue;
             }
 

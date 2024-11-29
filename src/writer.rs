@@ -32,12 +32,11 @@ impl Document {
         writeln!(target, "%PDF-{}", self.version)?;
 
         for (&(id, generation), object) in &self.objects {
-            if object
-                .type_name()
-                .map(|name| [b"ObjStm".as_slice(), b"XRef".as_slice(), b"Linearized".as_slice()].contains(&name))
-                .ok()
-                != Some(true)
-            {
+            let Ok(dict) = object.as_dict() else {
+                continue;
+            };
+
+            if matches!(dict.get_type(), Ok(b"ObjStm") | Ok(b"XRef")) || dict.get(b"Linearized").is_ok() {
                 Writer::write_indirect_object(&mut target, id, generation, object, &mut xref)?;
             }
         }
@@ -162,12 +161,11 @@ impl IncrementalDocument {
         writeln!(target, "%PDF-{}", self.new_document.version)?;
 
         for (&(id, generation), object) in &self.new_document.objects {
-            if object
-                .type_name()
-                .map(|name| [b"ObjStm".as_slice(), b"XRef".as_slice(), b"Linearized".as_slice()].contains(&name))
-                .ok()
-                != Some(true)
-            {
+            let Ok(dict) = object.as_dict() else {
+                continue;
+            };
+
+            if matches!(dict.get_type(), Ok(b"ObjStm") | Ok(b"XRef")) || dict.get(b"Linearized").is_ok() {
                 Writer::write_indirect_object(&mut target, id, generation, object, &mut xref)?;
             }
         }

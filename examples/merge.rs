@@ -171,7 +171,7 @@ fn main() {
     for (object_id, object) in documents_objects.into_iter() {
         // We have to ignore "Page" (as are processed later), "Outlines" and "Outline" objects
         // All other objects should be collected and inserted into the main Document
-        match object.type_name().unwrap_or(b"") {
+        match object.as_dict().and_then(|d| d.get_type()).unwrap_or(b"") {
             b"Catalog" => {
                 // Collect a first "Catalog" object and use it for the future "Pages"
                 catalog_object = Some((
